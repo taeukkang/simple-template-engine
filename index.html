@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Template Engine</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 15px;
+        max-width: 600px;
+        margin: auto; /* Center content */
+      }
+
+      h1,
+      h2 {
+        margin-bottom: 10px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      textarea,
+      input,
+      button {
+        margin-bottom: 10px;
+        padding: 5px;
+        box-sizing: border-box;
+        width: 100%;
+      }
+
+      #userInputForm {
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Template Engine</h2>
+
+    <div>
+      <h2>Template</h2>
+      <textarea id="templateInput" rows="4" cols="50"></textarea>
+      <button type="button" onclick="applyAndSaveTemplate()">
+        Apply Template
+      </button>
+    </div>
+
+    <h2>Fill in values</h2>
+
+    <form id="userInputForm">
+      <!-- Input fields will be dynamically added here -->
+      <button type="button" onclick="generateResult()">Generate Result</button>
+    </form>
+
+    <h2>Result</h2>
+    <textarea id="resultTextarea" rows="4" cols="50"></textarea>
+
+    <button type="button" onclick="copyToClipboard()">
+      Copy Result to Clipboard
+    </button>
+
+    <script>
+      // Load saved template on first page load
+      window.onload = function () {
+        const savedTemplate = localStorage.getItem("template");
+        if (savedTemplate) {
+          document.getElementById("templateInput").value = savedTemplate;
+          applyTemplate();
+        }
+      };
+
+      function applyAndSaveTemplate() {
+        applyTemplate();
+        saveTemplate();
+      }
+
+      function applyTemplate() {
+        const templateInput = document.getElementById("templateInput").value;
+        generateInputFields(templateInput);
+      }
+
+      function generateResult() {
+        const tagNames = getTagNames();
+        generateDynamicResult(tagNames);
+      }
+
+      function generateDynamicResult(tagNames) {
+        const templateInput = document.getElementById("templateInput").value;
+
+        let result = templateInput;
+        tagNames.forEach((tag) => {
+          const userInput = document.getElementsByName(tag)[0].value;
+          result = result.replace(
+            new RegExp(`{{\\s*${tag}\\s*}}`, "g"),
+            userInput
+          );
+        });
+
+        document.getElementById("resultTextarea").value = result;
+      }
+
+      function getTagNames() {
+        const templateInput = document.getElementById("templateInput").value;
+        const tagNames = templateInput.match(/{{\s*([^}\s]+)\s*}}/g);
+        return tagNames
+          ? Array.from(
+              new Set(tagNames.map((tag) => tag.replace(/[{}]/g, "").trim()))
+            )
+          : [];
+      }
+
+      function generateInputFields(templateInput) {
+        const tagNames = getTagNames();
+
+        const form = document.getElementById("userInputForm");
+        form.innerHTML = "";
+
+        tagNames.forEach((tag) => {
+          const label = document.createElement("label");
+          label.textContent = tag + ": ";
+
+          const input = document.createElement("input");
+          input.type = "text";
+          input.name = tag;
+
+          form.appendChild(label);
+          form.appendChild(input);
+        });
+
+        const generateButton = document.createElement("button");
+        generateButton.type = "button";
+        generateButton.textContent = "Generate Result";
+        generateButton.addEventListener("click", function () {
+          generateDynamicResult(tagNames);
+        });
+
+        form.appendChild(generateButton);
+      }
+
+      function saveTemplate() {
+        const templateInput = document.getElementById("templateInput").value;
+        localStorage.setItem("template", templateInput);
+      }
+
+      function copyToClipboard() {
+        const resultTextarea = document.getElementById("resultTextarea");
+        resultTextarea.select();
+        document.execCommand("copy");
+        alert("Result copied to clipboard!");
+      }
+    </script>
+  </body>
+</html>
