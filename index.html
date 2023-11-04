@@ -42,11 +42,15 @@
     </style>
   </head>
   <body>
-    <h1>Template Engine</h2>
+    <h1>Template Engine</h1>
 
     <div>
       <h2>Template</h2>
-      <textarea id="templateInput" rows="4" cols="50" placeholder="Try something like: Hello {{name}}, welcome to {{destination}}!"></textarea>
+      <textarea
+        id="templateInput"
+        rows="4"
+        cols="50"
+        placeholder="Try something like: Hello {{name}}, welcome to {{destination}}!"></textarea>
       <button type="button" onclick="applyAndSaveTemplate()">
         Apply Template
       </button>
@@ -60,7 +64,12 @@
     </form>
 
     <h2>Result</h2>
-    <textarea id="resultTextarea" rows="4" cols="50"></textarea>
+    <div
+      id="resultDiv"
+      style="border: 1px solid #ccc; padding: 5px; white-space: pre-line"
+      contenteditable="true"></div>
+
+    <p id="characterCount">0 characters</p>
 
     <button type="button" onclick="copyToClipboard()">
       Copy Result to Clipboard
@@ -83,7 +92,8 @@
 
       function applyTemplate() {
         const templateInput = document.getElementById("templateInput").value;
-        generateInputFields(templateInput);
+        const tagNames = getTagNames();
+        generateInputFields(tagNames);
       }
 
       function generateResult() {
@@ -97,13 +107,16 @@
         let result = templateInput;
         tagNames.forEach((tag) => {
           const userInput = document.getElementsByName(tag)[0].value;
+          const replacement = `<span style="color: blue;">${userInput}</span>`;
           result = result.replace(
             new RegExp(`{{\\s*${tag}\\s*}}`, "g"),
-            userInput
+            replacement
           );
         });
 
-        document.getElementById("resultTextarea").value = result;
+        const resultDiv = document.getElementById("resultDiv");
+        resultDiv.innerHTML = result;
+        updateCharacterCount();
       }
 
       function getTagNames() {
@@ -116,9 +129,7 @@
           : [];
       }
 
-      function generateInputFields(templateInput) {
-        const tagNames = getTagNames();
-
+      function generateInputFields(tagNames) {
         const form = document.getElementById("userInputForm");
         form.innerHTML = "";
 
@@ -150,11 +161,34 @@
       }
 
       function copyToClipboard() {
-        const resultTextarea = document.getElementById("resultTextarea");
-        resultTextarea.select();
+        const resultDiv = document.getElementById("resultDiv");
+        const tempTextarea = document.createElement("textarea");
+
+        tempTextarea.value = resultDiv.innerText; // Use innerText to get the plain text content
+
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
         document.execCommand("copy");
+        document.body.removeChild(tempTextarea);
+
         alert("Result copied to clipboard!");
       }
+
+      function updateCharacterCount() {
+        const resultDiv = document.getElementById("resultDiv");
+        const characterCountElement = document.getElementById("characterCount");
+
+        if (resultDiv) {
+          const count = resultDiv.innerText.length;
+          characterCountElement.textContent = count + " characters";
+        }
+      }
+
+      document
+        .getElementById("resultDiv")
+        .addEventListener("input", function () {
+          updateCharacterCount();
+        });
     </script>
   </body>
 </html>
