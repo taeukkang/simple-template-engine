@@ -4,3 +4,7 @@ I needed to write templated content but with different variables for each templa
 
 It's simple and works standalone. No need for fancy libraries. Just run `index.html` with a decently modern browser.
 Alternatively, you can use the hosted version at [https://projects.taeuk.net/simple-template-engine/](https://projects.taeuk.net/simple-template-engine/).
+
+## License
+
+GPLv3
